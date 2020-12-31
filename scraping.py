@@ -10,20 +10,29 @@ def scrape_all():
     executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
     browser = Browser('chrome', **executable_path)
 
+    
     news_title, news_paragraph = mars_news(browser)
+    img_url = featured_image
+    facts = mars_facts(browser)
+    hemisphere_image_urls = hemisphere(browser)
+    timestamp = dt.datetime.now()
 
-    # Run all scraping functions and store results in dictionary 
+    # Run all scraping function and store results in dictionary 
     data = {
         "news_title": news_title,
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
-        "facts": mars_facts(),
+        "facts": mars_facts(browser),
+        "hemispheres": hemisphere_image_urls,
         "last_modified": dt.datetime.now()
     }
 
     # Stop webdriver and return data 
     browser.quit()
     return data 
+
+
+### Latest Mars News ###
 
 def mars_news(browser):
     # Visit the mars nasa news site 
@@ -57,7 +66,7 @@ def mars_news(browser):
     return news_title, news_p
 
 
-# ### Featured Images 
+# ### Featured Mars Images ###
 
 def featured_image(browser):
 
@@ -95,9 +104,34 @@ def featured_image(browser):
 
     return img_url
 
-### Mars Facts 
+### Mars Facts ### 
 
-def mars_facts():
+# def mars_facts(browser):
+    
+#     url = 'http://space-facts.com/mars/'
+#     browser.visit(url)
+
+#     # add try/except for error handling 
+#     try:
+#         # use 'read_html' to scrape the facts table into a dataframe 
+#         df = pd.read_html(url)[0]
+
+#     except BaseException:
+#         return None
+    
+#     # Assign columns and set index of dataframe 
+#     df.columns=['description', 'value']
+#     df.set_index('description', inplace=True)
+
+#     # Convert dataframe into HTML format, add bootstrap 
+#     df.to_html(classes=["table-bordered", "table-striped", "table-hover"])
+#     mars_facts = df
+#     return mars_facts
+
+def mars_facts(browser):
+    url = 'http://space-facts.com/mars/'
+    browser.visit(url)
+
     # add try/except for error handling 
     try:
         # use 'read_html' to scrape the facs table into a datframe 
@@ -113,11 +147,63 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap 
     return df.to_html()
 
+
+### Mars hemispheres 
+
+def hemisphere(browser):
+
+    # 1. Use browser to visit the URL 
+    url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+
+    # Get a List of All the Hemispheres
+    hemi_links = browser.find_by_css("a.product-item h3")
+
+    for link in range(len(hemi_links)):
+        hemisphere = {}
+        
+        # Click into link
+        browser.find_by_css("a.product-item h3")[link].click()
+        
+        # Find Sample & Extract href
+        sample_element = browser.links.find_by_text("Sample").first
+        hemisphere["img_url"] = sample_element["href"]
+        
+        # Get Hemisphere Title
+        hemisphere["title"] = browser.find_by_css("h2.title").text
+        
+        # Append Hemisphere Object to List
+        hemisphere_image_urls.append(hemisphere)
+        
+        # Navigate Backwards
+        browser.back()
+
+    return hemisphere_image_urls
+
+# Helper Function
+def scrape_hemisphere(html_text):
+    hemisphere_soup = soup(html_text, "html.parser")
+    try: 
+        title_element = hemisphere_soup.find("h2", class_="title").get_text()
+        sample_element = hemisphere_soup.find("a", text="Sample").get("href")
+    except AttributeError:
+        title_element = None
+        sample_element = None 
+    hemisphere = {
+        "title": title_element,
+        "img_url": sample_element
+    }
+    return hemisphere
+
+
+
 if __name__ == "__main__":
 
     # If running as script, print scraped data 
     print(scrape_all())
-
-
-
 

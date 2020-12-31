@@ -1,32 +1,13 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[14]:
-
-
 from flask import Flask, render_template
 from flask_pymongo import PyMongo
 import scraping
 
-
-# In[15]:
-
-
 app = Flask(__name__)
-
-
-# In[16]:
-
 
 # Use flask_pymongo to set up mongo connection 
 app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app" 
 mongo = PyMongo(app)
                 
-
-
-# In[17]:
-
-
 # this route tells Flask what to display when we're looking at home 
 # page, index.html 
 @app.route("/")
@@ -40,9 +21,6 @@ def index():
     # tells Flask to return an HTML template using an index.html file 
     return render_template("index.html", mars=mars) # mars=mars tells 
                         # Python to use the "mars" collection in MDB
-
-
-# In[18]:
 
 
 # This func will set up our scraping route
@@ -64,10 +42,6 @@ def scrape():
 
 if __name__ == "__main__":
     app.run()
-
-
-# In[ ]:
-
 
 
 
