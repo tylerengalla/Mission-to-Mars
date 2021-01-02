@@ -22,7 +22,7 @@ def scrape_all():
         "news_title": news_title,
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
-        "facts": mars_facts(browser),
+        "facts": facts,
         "hemispheres": hemisphere_image_urls,
         "last_modified": dt.datetime.now()
     }
@@ -106,28 +106,6 @@ def featured_image(browser):
 
 ### Mars Facts ### 
 
-# def mars_facts(browser):
-    
-#     url = 'http://space-facts.com/mars/'
-#     browser.visit(url)
-
-#     # add try/except for error handling 
-#     try:
-#         # use 'read_html' to scrape the facts table into a dataframe 
-#         df = pd.read_html(url)[0]
-
-#     except BaseException:
-#         return None
-    
-#     # Assign columns and set index of dataframe 
-#     df.columns=['description', 'value']
-#     df.set_index('description', inplace=True)
-
-#     # Convert dataframe into HTML format, add bootstrap 
-#     df.to_html(classes=["table-bordered", "table-striped", "table-hover"])
-#     mars_facts = df
-#     return mars_facts
-
 def mars_facts(browser):
     url = 'http://space-facts.com/mars/'
     browser.visit(url)
@@ -135,17 +113,17 @@ def mars_facts(browser):
     # add try/except for error handling 
     try:
         # use 'read_html' to scrape the facs table into a datframe 
-        df = pd.read_html('http://space-facts.com/mars/')[0]
+        facts_df = pd.read_html('http://space-facts.com/mars/')[0]
 
     except BaseException:
         return None
     
     # Assign columns and set index of dataframe 
-    df.columns=['description', 'value']
-    df.set_index('description', inplace=True)
+    facts_df.columns=['description', 'value']
+    facts_df.set_index('description', inplace=True)
 
     # Convert dataframe into HTML format, add bootstrap 
-    return df.to_html()
+    return facts_df.to_html(classes=["table-bordered", "table-striped", "table-hover"])
 
 
 ### Mars hemispheres 
